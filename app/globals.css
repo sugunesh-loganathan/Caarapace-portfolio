@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+@theme {
+  --color-crimson: #b30b3f;
+  --color-crimson-light: #d11248;
+  --color-crimson-dark: #7d0830;
+  --color-charcoal: #2d2d2d;
+  --color-lightgray: #f5f5f5;
+
+  --font-heading: var(--font-montserrat), "Montserrat", sans-serif;
+  --font-body: var(--font-poppins), "Poppins", sans-serif;
+}
+
+html {
+  background: #ffffff;
+}
+
+body {
+  background: #ffffff;
+  color: var(--color-charcoal);
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--color-crimson);
+  color: #ffffff;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-crimson);
+  border-radius: 999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Cinematic grid background, used behind hero / dark-on-light scenes */
+.bg-grid {
+  background-image: linear-gradient(rgba(45, 45, 45, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45, 45, 45, 0.07) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+@keyframes grid-drift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 64px 64px;
+  }
+}
+
+.bg-grid-animated {
+  animation: grid-drift 24s linear infinite;
+}
+
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
+
+.mask-vignette {
+  mask-image: radial-gradient(ellipse 75% 65% at 50% 40%, black 40%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 40%, black 40%, transparent 85%);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
