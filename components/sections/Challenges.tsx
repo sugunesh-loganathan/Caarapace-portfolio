@@ -1,113 +1,130 @@
 "use client";
 
-import { useRef, type MouseEvent } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { Workflow, Database, GaugeCircle, EyeOff } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
+import {
+  ConnectIcon,
+  ModelIcon,
+  VisualizeIcon,
+  DecideIcon,
+} from "@/components/ui/PipelineIcons";
 import SectionHeading from "@/components/ui/SectionHeading";
 
-const EASE = [0.16, 1, 0.3, 1] as const;
-
-const CHALLENGES = [
+const PIPELINE = [
   {
-    icon: Workflow,
-    title: "Manual Processes",
-    description: "Repetitive tasks consume hours that should be spent on strategy and growth.",
+    icon: ConnectIcon,
+    step: "01",
+    title: "Connect your data",
+    desc: "We unify ERP, CRM, finance and ops into one clean, governed source of truth.",
   },
   {
-    icon: Database,
-    title: "Data Silos",
-    description: "Critical information trapped in disconnected systems, invisible to decision-makers.",
+    icon: ModelIcon,
+    step: "02",
+    title: "Model & analyze",
+    desc: "Our software cleans, joins and crunches it — finding patterns no spreadsheet could.",
   },
   {
-    icon: GaugeCircle,
-    title: "Inefficiencies",
-    description: "Friction between teams and tools slows down every operation across the business.",
+    icon: VisualizeIcon,
+    step: "03",
+    title: "Visualize live",
+    desc: "Interactive dashboards put every metric that matters in front of you, in real time.",
   },
   {
-    icon: EyeOff,
-    title: "Limited Visibility",
-    description: "Leaders fly blind without real-time insight into performance and risk.",
+    icon: DecideIcon,
+    step: "04",
+    title: "Decide & act",
+    desc: "Clear, forward-looking insight turns raw numbers into confident decisions.",
   },
 ];
 
-function TiltCard({
-  icon: Icon,
-  title,
-  description,
-  index,
-}: {
-  icon: typeof Workflow;
-  title: string;
-  description: string;
-  index: number;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0.5);
-  const y = useMotionValue(0.5);
-  const springX = useSpring(x, { stiffness: 200, damping: 22 });
-  const springY = useSpring(y, { stiffness: 200, damping: 22 });
-  const rotateX = useTransform(springY, [0, 1], [6, -6]);
-  const rotateY = useTransform(springX, [0, 1], [-6, 6]);
-
-  function handleMouseMove(e: MouseEvent<HTMLDivElement>) {
-    const el = ref.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    x.set((e.clientX - rect.left) / rect.width);
-    y.set((e.clientY - rect.top) / rect.height);
-  }
-
-  function handleMouseLeave() {
-    x.set(0.5);
-    y.set(0.5);
-  }
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 60, scale: 0.94 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, amount: 0.4 }}
-      transition={{ duration: 0.75, delay: index * 0.12, ease: EASE }}
-      style={{ perspective: 1000 }}
-    >
-      <motion.div
-        ref={ref}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-        className="group relative overflow-hidden rounded-2xl border border-charcoal/[0.06] bg-lightgray p-8 shadow-[0_20px_60px_-30px_rgba(45,45,45,0.25)] transition-shadow duration-300 hover:shadow-[0_30px_80px_-30px_rgba(179,11,63,0.25)]"
-      >
-        <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-white shadow-sm">
-          <Icon className="h-6 w-6 text-crimson" strokeWidth={1.75} />
-        </div>
-        <h3 className="font-heading text-xl font-bold text-charcoal">{title}</h3>
-        <p className="mt-3 font-body text-sm leading-relaxed text-charcoal/60">
-          {description}
-        </p>
-        <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-crimson/[0.06] transition-transform duration-500 group-hover:scale-150" />
-      </motion.div>
-    </motion.div>
-  );
-}
-
 export default function Challenges({ id }: { id: string }) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<Array<HTMLDivElement | null>>([]);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const ctx = gsap.context(() => {
+      const cards = cardRefs.current.filter(Boolean) as HTMLDivElement[];
+      gsap.set(cards, { opacity: 0, y: 60 });
+
+      const trigger = ScrollTrigger.create({
+        trigger: section,
+        id: "stops:0.3,0.475,0.65,1",
+        start: "top top",
+        end: "+=150%",
+        pin: true,
+        scrub: true,
+        anticipatePin: 1,
+        onUpdate: (self) => {
+          const p = self.progress;
+          const n = cards.length;
+          cards.forEach((card, i) => {
+            // Each card reveals across its own slice of the scroll, in order.
+            const start = (i / n) * 0.7;
+            const local = gsap.utils.clamp(0, 1, (p - start) / 0.3);
+            gsap.set(card, { opacity: local, y: (1 - local) * 60 });
+          });
+        },
+      });
+
+      return () => trigger.kill();
+    }, section);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
     <section
       id={id}
-      className="relative w-full bg-white px-6 py-28 lg:px-12 lg:py-36"
+      ref={sectionRef}
+      className="relative flex h-screen min-h-[720px] w-full items-center overflow-hidden bg-lightgray px-6 lg:px-12"
     >
-      <div className="mx-auto max-w-7xl">
+      {/* Ambient crimson glow */}
+      <div
+        className="pointer-events-none absolute -left-40 top-1/3 h-[36rem] w-[36rem] rounded-full opacity-[0.05] blur-3xl"
+        style={{ background: "radial-gradient(circle, #B30B3F, transparent 70%)" }}
+        aria-hidden="true"
+      />
+
+      <div className="relative z-10 mx-auto w-full max-w-7xl">
         <SectionHeading
-          eyebrow="The Challenges"
-          title="Disconnected Systems Create Invisible Barriers."
+          eyebrow="Business Intelligence"
+          title="From raw data to real decisions."
+          subtitle="Business intelligence turns the data your business already generates into a clear, live picture of what's working — and what's costing you. Here's how our software does it."
           align="center"
           className="mx-auto mb-16 max-w-3xl"
         />
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          {CHALLENGES.map((c, i) => (
-            <TiltCard key={c.title} index={i} {...c} />
-          ))}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {PIPELINE.map((p, i) => {
+            const Icon = p.icon;
+            return (
+              <div
+                key={p.step}
+                ref={(el) => {
+                  cardRefs.current[i] = el;
+                }}
+                className="relative overflow-hidden rounded-2xl border border-charcoal/[0.06] bg-white p-6"
+              >
+                <div className="mb-5 flex items-start justify-between">
+                  <span className="font-heading text-4xl font-extrabold text-crimson/70">
+                    {p.step}
+                  </span>
+                  <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-crimson/10 text-crimson">
+                    <Icon className="h-10 w-10" />
+                  </div>
+                </div>
+                <h3 className="font-heading text-base font-bold tracking-tight text-charcoal">
+                  {p.title}
+                </h3>
+                <p className="mt-2 font-body text-sm leading-relaxed text-charcoal/60">
+                  {p.desc}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

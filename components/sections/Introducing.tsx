@@ -1,28 +1,60 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { LogoMark } from "@/components/ui/Logo";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { RevealWords } from "@/components/ui/RevealText";
+import { RulerCarousel, type CarouselItem } from "@/components/ui/ruler-carousel";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-const ORBIT_LABELS = [
-  { label: "ERP", angle: -90 },
-  { label: "Smart CRM", angle: -18 },
-  { label: "Web", angle: 54 },
-  { label: "Industry Solutions", angle: 126 },
-  { label: "Strategy", angle: 198 },
+const SERVICES: CarouselItem[] = [
+  { id: 1, title: "HRMS", subtitle: "People & Payroll" },
+  { id: 2, title: "Smart CRM", subtitle: "Sales & Relationships" },
+  { id: 3, title: "C-Deck ERP", subtitle: "Operations Core" },
+  { id: 4, title: "C-Forge ERP", subtitle: "Manufacturing" },
+  { id: 5, title: "Custom Apps", subtitle: "Built For You" },
 ];
 
 export default function Introducing({ id }: { id: string }) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const ctx = gsap.context(() => {
+      const trigger = ScrollTrigger.create({
+        trigger: section,
+        id: "stops:1",
+        start: "top top",
+        end: "+=120%",
+        pin: true,
+        scrub: true,
+        anticipatePin: 1,
+      });
+      return () => trigger.kill();
+    }, section);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
     <section
       id={id}
-      className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-charcoal px-6 py-28"
+      ref={sectionRef}
+      className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-white px-6 py-28"
     >
-      <div className="absolute inset-0 bg-grid opacity-[0.06]" aria-hidden="true" />
+      <div className="absolute inset-0 bg-grid opacity-[0.04]" aria-hidden="true" />
 
-      <div className="relative z-10 flex flex-col items-center text-center">
+      {/* Ambient crimson glow */}
+      <div
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[60vh] w-[60vw] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.06] blur-3xl"
+        style={{ background: "radial-gradient(circle, #B30B3F, transparent 70%)" }}
+        aria-hidden="true"
+      />
+
+      <div className="relative z-10 flex w-full flex-col items-center text-center">
         <motion.span
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -34,7 +66,7 @@ export default function Introducing({ id }: { id: string }) {
           Introducing Caarapace
         </motion.span>
 
-        <h2 className="max-w-4xl font-heading text-4xl font-extrabold leading-[1.08] tracking-tight text-white text-balance sm:text-5xl lg:text-6xl">
+        <h2 className="max-w-4xl font-heading text-4xl font-extrabold leading-[1.08] tracking-tight text-charcoal text-balance sm:text-5xl lg:text-6xl">
           <RevealWords text="Technology Built Around Your Business." />
         </h2>
 
@@ -43,71 +75,21 @@ export default function Introducing({ id }: { id: string }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.6 }}
           transition={{ duration: 0.7, delay: 0.2, ease: EASE }}
-          className="mt-5 font-body text-lg text-white/55"
+          className="mt-5 font-body text-lg text-charcoal/55"
         >
           We don&apos;t sell products. We build solutions.
         </motion.p>
 
-        <div className="relative mt-20 flex h-[420px] w-[420px] items-center justify-center sm:h-[520px] sm:w-[520px]">
-          {[1, 2, 3].map((ring) => (
-            <motion.div
-              key={ring}
-              className="absolute rounded-full border border-crimson/25"
-              style={{
-                width: `${ring * 33}%`,
-                height: `${ring * 33}%`,
-              }}
-              initial={{ opacity: 0, scale: 0.7 }}
-              whileInView={{ opacity: [0, 0.6, 0.3], scale: [0.7, 1, 1] }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: 1.6, delay: ring * 0.25, ease: EASE }}
-            />
-          ))}
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.6 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, amount: 0.6 }}
-            transition={{ duration: 0.8, ease: EASE }}
-            className="relative z-10 flex h-24 w-24 items-center justify-center rounded-full bg-white shadow-[0_0_60px_rgba(179,11,63,0.35)] sm:h-28 sm:w-28"
-          >
-            <LogoMark className="h-14 w-14 sm:h-16 sm:w-16" inView delay={0.2} />
-          </motion.div>
-
-          <motion.div
-            className="absolute inset-0"
-            initial={{ rotate: 0 }}
-            whileInView={{ rotate: 360 }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 40, ease: "linear", repeat: Infinity }}
-          >
-            {ORBIT_LABELS.map((o, i) => {
-              const rad = (o.angle * Math.PI) / 180;
-              const radius = 50;
-              const x = 50 + radius * Math.cos(rad);
-              const y = 50 + radius * Math.sin(rad);
-              return (
-                <motion.div
-                  key={o.label}
-                  className="absolute -translate-x-1/2 -translate-y-1/2"
-                  style={{ left: `${x}%`, top: `${y}%` }}
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true, amount: 0.5 }}
-                  transition={{ duration: 0.6, delay: 0.8 + i * 0.12, ease: EASE }}
-                >
-                  <motion.div
-                    animate={{ rotate: -360 }}
-                    transition={{ duration: 40, ease: "linear", repeat: Infinity }}
-                    className="whitespace-nowrap rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 font-body text-xs font-medium uppercase tracking-wider text-white/80 backdrop-blur-sm"
-                  >
-                    {o.label}
-                  </motion.div>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        </div>
+        {/* Service carousel */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.8, delay: 0.3, ease: EASE }}
+          className="mt-16 w-full"
+        >
+          <RulerCarousel originalItems={SERVICES} />
+        </motion.div>
       </div>
     </section>
   );

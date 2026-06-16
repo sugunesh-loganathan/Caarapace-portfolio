@@ -58,6 +58,7 @@ export default function WhyChoose({ id }: { id: string }) {
 
       const trigger = ScrollTrigger.create({
         trigger: section,
+        id: "stops:0.125,0.375,0.625,0.875",
         start: "top top",
         end: "+=320%",
         pin: true,
@@ -121,9 +122,9 @@ export default function WhyChoose({ id }: { id: string }) {
     <section
       id={id}
       ref={sectionRef}
-      className="relative flex h-screen min-h-[720px] w-full flex-col items-center justify-center overflow-hidden bg-charcoal"
+      className="relative flex h-screen min-h-[720px] w-full flex-col items-center justify-center overflow-hidden bg-crimson"
     >
-      <div className="absolute inset-0 bg-grid opacity-[0.05]" aria-hidden="true" />
+      <div className="absolute inset-0 bg-grid opacity-[0.06]" aria-hidden="true" />
 
       {/* Title: initial CSS matches GSAP start state to prevent flash */}
       <span
@@ -169,8 +170,7 @@ export default function WhyChoose({ id }: { id: string }) {
             ref={(el) => {
               descRefs.current[i] = el;
             }}
-            className="absolute inset-x-0 top-0 font-body text-base font-semibold sm:text-lg"
-            style={{ color: "#B30B3F" }}
+            className="absolute inset-x-0 top-0 font-body text-base font-semibold text-white sm:text-lg"
           >
             {p.desc}
           </p>
@@ -181,7 +181,7 @@ export default function WhyChoose({ id }: { id: string }) {
         ref={subRef}
         className="absolute bottom-14 flex flex-col items-center gap-2 px-6 text-center"
       >
-        <span className="h-px w-10 bg-crimson" />
+        <span className="h-px w-10 bg-white/60" />
         <p className="font-heading text-lg font-bold tracking-wide text-white sm:text-xl">
           Your Strategic Technology Partner.
         </p>
