@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Mail, ArrowRight } from "lucide-react";
-import { LogoMark } from "@/components/ui/Logo";
+import Image from "next/image";
 import { RevealWords } from "@/components/ui/RevealText";
 import Particles from "@/components/ui/Particles";
 import Magnetic from "@/components/ui/Magnetic";
@@ -32,7 +32,13 @@ export default function Finale({ id }: { id: string }) {
           transition={{ duration: 0.7, ease: EASE }}
           className="mb-8"
         >
-          <LogoMark className="h-16 w-16" inView delay={0.15} />
+          <Image
+              src="/Caarapace_logo-removebg-preview.png"
+              alt="Caarapace"
+              width={200}
+              height={56}
+              className="h-14 w-auto object-contain"
+            />
         </motion.div>
 
         <h2 className="max-w-4xl font-heading text-4xl font-extrabold leading-[1.08] tracking-tight text-white text-balance sm:text-5xl lg:text-6xl">

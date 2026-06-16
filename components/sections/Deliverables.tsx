@@ -17,7 +17,7 @@ const SERVICES = [
   },
   {
     icon: Users,
-    title: "CRM Solutions",
+    title: "Smart CRM Solutions",
     description:
       "Turn every customer interaction into insight with a CRM tailored to your sales motion and service model.",
   },

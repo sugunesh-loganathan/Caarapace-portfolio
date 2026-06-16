@@ -19,7 +19,7 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "Caarapace — Engineering Digital Transformation",
   description:
-    "Customized ERP systems, CRM solutions, and digital experiences engineered around your business.",
+    "Customized ERP systems, Smart CRM solutions, and digital experiences engineered around your business.",
 };
 
 export default function RootLayout({

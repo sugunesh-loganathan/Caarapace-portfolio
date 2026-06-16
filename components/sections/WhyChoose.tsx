@@ -28,6 +28,7 @@ export default function WhyChoose({ id }: { id: string }) {
   const descRefs = useRef<Array<HTMLParagraphElement | null>>([]);
   const counterRef = useRef<HTMLSpanElement>(null);
   const subRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -37,6 +38,23 @@ export default function WhyChoose({ id }: { id: string }) {
       gsap.set(wordRefs.current, { opacity: 0, scale: 0.85, filter: "blur(10px)" });
       gsap.set(descRefs.current, { opacity: 0, y: 14 });
       gsap.set(subRef.current, { opacity: 0, y: 20 });
+
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const finalLeft = vw >= 1024 ? 48 : 24;
+      const finalTop = vw >= 1024 ? 48 : 32;
+
+      // Title starts centered and large
+      gsap.set(titleRef.current, {
+        position: "absolute",
+        left: 0,
+        top: 0,
+        x: vw / 2,
+        y: vh / 2,
+        xPercent: -50,
+        yPercent: -50,
+        scale: 2.4,
+      });
 
       const trigger = ScrollTrigger.create({
         trigger: section,
@@ -76,6 +94,20 @@ export default function WhyChoose({ id }: { id: string }) {
           if (subRef.current) {
             gsap.set(subRef.current, { opacity: subOpacity, y: (1 - subOpacity) * 20 });
           }
+
+          // Title flies from center to top-left during first 10% of scroll
+          const TITLE_T = 0.1;
+          const raw = gsap.utils.clamp(0, 1, p / TITLE_T);
+          // Ease-out cubic: starts fast, decelerates smoothly into the corner
+          const tp = 1 - Math.pow(1 - raw, 3);
+
+          gsap.set(titleRef.current, {
+            x: gsap.utils.interpolate(vw / 2, finalLeft, tp),
+            y: gsap.utils.interpolate(vh / 2, finalTop, tp),
+            xPercent: gsap.utils.interpolate(-50, 0, tp),
+            yPercent: gsap.utils.interpolate(-50, 0, tp),
+            scale: gsap.utils.interpolate(2.4, 1, tp),
+          });
         },
       });
 
@@ -93,9 +125,20 @@ export default function WhyChoose({ id }: { id: string }) {
     >
       <div className="absolute inset-0 bg-grid opacity-[0.05]" aria-hidden="true" />
 
-      <span className="absolute left-6 top-8 font-body text-xs uppercase tracking-[0.3em] text-white/35 lg:left-12 lg:top-12">
+      {/* Title: initial CSS matches GSAP start state to prevent flash */}
+      <span
+        ref={titleRef}
+        className="font-body text-sm font-bold uppercase tracking-[0.3em] text-white/35"
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: "50%",
+          transform: "translate(-50%, -50%) scale(2.4)",
+        }}
+      >
         Why Choose Caarapace
       </span>
+
       <span
         ref={counterRef}
         className="absolute right-6 top-8 font-body text-xs tabular-nums tracking-widest text-white/35 lg:right-12 lg:top-12"
@@ -126,7 +169,8 @@ export default function WhyChoose({ id }: { id: string }) {
             ref={(el) => {
               descRefs.current[i] = el;
             }}
-            className="absolute inset-x-0 top-0 font-body text-sm text-white/55 sm:text-base"
+            className="absolute inset-x-0 top-0 font-body text-base font-semibold sm:text-lg"
+            style={{ color: "#B30B3F" }}
           >
             {p.desc}
           </p>

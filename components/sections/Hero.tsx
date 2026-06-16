@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import { LogoMark } from "@/components/ui/Logo";
+import Image from "next/image";
 import { RevealChars } from "@/components/ui/RevealText";
 import Particles from "@/components/ui/Particles";
 import Magnetic from "@/components/ui/Magnetic";
@@ -42,7 +42,14 @@ export default function Hero({ id, started }: { id: string; started: boolean }) 
             transition={{ duration: 0.6, ease: EASE }}
             className="mb-8"
           >
-            <LogoMark className="h-14 w-14" animate delay={0.1} />
+            <Image
+              src="/Caarapace_logo-removebg-preview.png"
+              alt="Caarapace"
+              width={200}
+              height={56}
+              className="h-14 w-auto object-contain"
+              priority
+            />
           </motion.div>
         )}
 
@@ -61,7 +68,7 @@ export default function Hero({ id, started }: { id: string; started: boolean }) 
             transition={{ duration: 0.8, delay: 1.75, ease: EASE }}
             className="mt-6 max-w-xl font-body text-base font-medium text-charcoal/60 sm:text-lg"
           >
-            Customized ERP. CRM. Digital Experiences.
+            Customized ERP. Smart CRM. Digital Experiences.
           </motion.p>
         )}
 

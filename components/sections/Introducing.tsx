@@ -8,7 +8,7 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 
 const ORBIT_LABELS = [
   { label: "ERP", angle: -90 },
-  { label: "CRM", angle: -18 },
+  { label: "Smart CRM", angle: -18 },
   { label: "Web", angle: 54 },
   { label: "Industry Solutions", angle: 126 },
   { label: "Strategy", angle: 198 },
@@ -28,7 +28,7 @@ export default function Introducing({ id }: { id: string }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.6 }}
           transition={{ duration: 0.6, ease: EASE }}
-          className="mb-6 inline-flex items-center gap-2 font-body text-xs font-medium uppercase tracking-[0.3em] text-crimson"
+          className="mb-6 inline-flex items-center gap-2 font-body text-sm font-bold uppercase tracking-[0.3em] text-crimson"
         >
           <span className="h-px w-6 bg-crimson" />
           Introducing Caarapace
