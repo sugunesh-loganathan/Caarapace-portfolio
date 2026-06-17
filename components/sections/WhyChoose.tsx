@@ -56,11 +56,18 @@ export default function WhyChoose({ id }: { id: string }) {
         scale: 2.4,
       });
 
+      // The first TITLE_STAGE of the scroll is a dedicated substage for the
+      // title. It rests centered & large until TITLE_HOLD (giving the reader a
+      // beat after the pin engages), then flies to the corner and docks at
+      // TITLE_STAGE — only after which the pillars begin.
+      const TITLE_HOLD = 0.12;
+      const TITLE_STAGE = 0.3;
+
       const trigger = ScrollTrigger.create({
         trigger: section,
-        id: "stops:0.125,0.375,0.625,0.875",
+        id: "stops:0.06,0.3875,0.5625,0.7375,0.9125",
         start: "top top",
-        end: "+=320%",
+        end: "+=400%",
         pin: true,
         scrub: true,
         anticipatePin: 1,
@@ -68,10 +75,37 @@ export default function WhyChoose({ id }: { id: string }) {
           const p = self.progress;
           const n = PILLARS.length;
 
+          // Title holds centered until TITLE_HOLD, then flies to the corner,
+          // docking at TITLE_STAGE.
+          const titleRaw = gsap.utils.clamp(
+            0,
+            1,
+            (p - TITLE_HOLD) / (TITLE_STAGE - TITLE_HOLD)
+          );
+          // Ease-out cubic: starts fast, decelerates smoothly into the corner
+          const tp = 1 - Math.pow(1 - titleRaw, 3);
+
+          gsap.set(titleRef.current, {
+            x: gsap.utils.interpolate(vw / 2, finalLeft, tp),
+            y: gsap.utils.interpolate(vh / 2, finalTop, tp),
+            xPercent: gsap.utils.interpolate(-50, 0, tp),
+            yPercent: gsap.utils.interpolate(-50, 0, tp),
+            scale: gsap.utils.interpolate(2.4, 1, tp),
+          });
+
+          // Pillars occupy the remaining progress after the title has docked.
+          const pp = gsap.utils.clamp(0, 1, (p - TITLE_STAGE) / (1 - TITLE_STAGE));
+
+          // Fade pillars in from zero at the very start so the first word
+          // doesn't bleed through while the title is still centered.
+          const pillarIntro = gsap.utils.clamp(0, 1, pp / 0.06);
+
           PILLARS.forEach((_, i) => {
             const center = (i + 0.5) / n;
-            const signedDist = p - center;
-            const opacity = gsap.utils.clamp(0, 1, 1 - Math.abs(signedDist) / (1 / n));
+            const signedDist = pp - center;
+            const opacity =
+              gsap.utils.clamp(0, 1, 1 - Math.abs(signedDist) / (1 / n)) *
+              (i === 0 ? pillarIntro : 1);
             const word = wordRefs.current[i];
             const desc = descRefs.current[i];
             if (word) {
@@ -87,28 +121,14 @@ export default function WhyChoose({ id }: { id: string }) {
           });
 
           if (counterRef.current) {
-            const idx = Math.min(n - 1, Math.floor(p * n));
+            const idx = Math.min(n - 1, Math.floor(pp * n));
             counterRef.current.textContent = `0${idx + 1} / 0${n}`;
           }
 
-          const subOpacity = gsap.utils.clamp(0, 1, (p - 0.9) / 0.1);
+          const subOpacity = gsap.utils.clamp(0, 1, (pp - 0.9) / 0.1);
           if (subRef.current) {
             gsap.set(subRef.current, { opacity: subOpacity, y: (1 - subOpacity) * 20 });
           }
-
-          // Title flies from center to top-left during first 10% of scroll
-          const TITLE_T = 0.1;
-          const raw = gsap.utils.clamp(0, 1, p / TITLE_T);
-          // Ease-out cubic: starts fast, decelerates smoothly into the corner
-          const tp = 1 - Math.pow(1 - raw, 3);
-
-          gsap.set(titleRef.current, {
-            x: gsap.utils.interpolate(vw / 2, finalLeft, tp),
-            y: gsap.utils.interpolate(vh / 2, finalTop, tp),
-            xPercent: gsap.utils.interpolate(-50, 0, tp),
-            yPercent: gsap.utils.interpolate(-50, 0, tp),
-            scale: gsap.utils.interpolate(2.4, 1, tp),
-          });
         },
       });
 

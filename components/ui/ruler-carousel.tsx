@@ -70,6 +70,28 @@ const ITEM_WIDTH = 440; // px per slot (width + gap)
 
 export function RulerCarousel({
   originalItems,
+  activeIndex: controlledIndex,
+}: {
+  originalItems: CarouselItem[];
+  /**
+   * When provided, the carousel is fully controlled by the parent (e.g. driven
+   * by scroll progress): no triplication/looping, no auto-advance, no internal
+   * nav. The value is a 0-based index into `originalItems`.
+   */
+  activeIndex?: number;
+}) {
+  return controlledIndex !== undefined ? (
+    <ControlledRulerCarousel
+      originalItems={originalItems}
+      activeIndex={controlledIndex}
+    />
+  ) : (
+    <UncontrolledRulerCarousel originalItems={originalItems} />
+  );
+}
+
+function UncontrolledRulerCarousel({
+  originalItems,
 }: {
   originalItems: CarouselItem[];
 }) {
@@ -269,6 +291,88 @@ export function RulerCarousel({
         >
           <FastForward className="h-5 w-5 text-crimson" />
         </button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Scroll-controlled variant: renders the items once (no looping) and centers
+ * on `activeIndex`, which the parent maps from scroll progress. Each item is
+ * its own sub-stage; advancing happens via scroll / the page's side nav.
+ */
+function ControlledRulerCarousel({
+  originalItems,
+  activeIndex,
+}: {
+  originalItems: CarouselItem[];
+  activeIndex: number;
+}) {
+  const total = originalItems.length;
+  const clamped = Math.max(0, Math.min(total - 1, Math.round(activeIndex)));
+
+  // Center the active item: item i's center sits at i*ITEM_WIDTH + ITEM_WIDTH/2
+  // from the track start (anchored at the container's horizontal center).
+  const targetX = -(activeIndex * ITEM_WIDTH + ITEM_WIDTH / 2);
+
+  return (
+    <div className="flex w-full flex-col items-center justify-center">
+      <div className="relative flex h-[200px] w-full flex-col justify-center">
+        <div className="flex items-center justify-center">
+          <RulerLines top />
+        </div>
+
+        <div className="relative flex h-full w-full items-center overflow-hidden">
+          <motion.div
+            className="absolute left-1/2 top-1/2 flex -translate-y-1/2 items-center"
+            style={{ gap: 0, x: targetX }}
+          >
+            {originalItems.map((item, index) => {
+              // Distance from the (possibly fractional) active position drives
+              // the scale/opacity falloff so it tracks scroll smoothly.
+              const dist = Math.min(1, Math.abs(activeIndex - index));
+              const isActive = index === clamped;
+              return (
+                <div
+                  key={item.id}
+                  className="flex shrink-0 flex-col items-center justify-center"
+                  style={{
+                    width: `${ITEM_WIDTH}px`,
+                    transform: `scale(${1 - dist * 0.3})`,
+                    opacity: 1 - dist * 0.65,
+                  }}
+                >
+                  <span
+                    className={`whitespace-nowrap font-heading text-4xl font-extrabold tracking-tight md:text-6xl ${
+                      isActive ? "text-charcoal" : "text-charcoal/40"
+                    }`}
+                  >
+                    {item.title}
+                  </span>
+                  {item.subtitle && (
+                    <span
+                      className={`mt-2 whitespace-nowrap font-body text-sm font-medium uppercase tracking-[0.18em] ${
+                        isActive ? "text-crimson" : "text-charcoal/30"
+                      }`}
+                    >
+                      {item.subtitle}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </motion.div>
+        </div>
+
+        <div className="flex items-center justify-center">
+          <RulerLines top={false} />
+        </div>
+      </div>
+
+      <div className="mt-10 flex items-center justify-center gap-2 tabular-nums">
+        <span className="font-body text-sm font-medium text-charcoal/80">{clamped + 1}</span>
+        <span className="font-body text-sm text-charcoal/40">/</span>
+        <span className="font-body text-sm font-medium text-charcoal/80">{total}</span>
       </div>
     </div>
   );

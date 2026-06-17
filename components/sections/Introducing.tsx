@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { RevealWords } from "@/components/ui/RevealText";
@@ -18,20 +18,32 @@ const SERVICES: CarouselItem[] = [
 
 export default function Introducing({ id }: { id: string }) {
   const sectionRef = useRef<HTMLDivElement>(null);
+  // Scroll-driven active item (fractional, so the carousel tracks scroll
+  // smoothly rather than snapping between items).
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
+    const n = SERVICES.length;
+    // One stop per service, evenly spaced so the side nav steps through each
+    // item as its own sub-stage: p = i / (n - 1).
+    const stops = Array.from({ length: n }, (_, i) => (i / (n - 1)).toFixed(4));
+
     const ctx = gsap.context(() => {
       const trigger = ScrollTrigger.create({
         trigger: section,
-        id: "stops:1",
+        id: "stops:" + stops.join(","),
         start: "top top",
-        end: "+=120%",
+        // Give each of the n items real scroll room before moving on.
+        end: "+=" + n * 80 + "%",
         pin: true,
         scrub: true,
         anticipatePin: 1,
+        onUpdate: (self) => {
+          setActiveIndex(self.progress * (n - 1));
+        },
       });
       return () => trigger.kill();
     }, section);
@@ -88,7 +100,7 @@ export default function Introducing({ id }: { id: string }) {
           transition={{ duration: 0.8, delay: 0.3, ease: EASE }}
           className="mt-16 w-full"
         >
-          <RulerCarousel originalItems={SERVICES} />
+          <RulerCarousel originalItems={SERVICES} activeIndex={activeIndex} />
         </motion.div>
       </div>
     </section>

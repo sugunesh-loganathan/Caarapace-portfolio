@@ -18,6 +18,13 @@ export function LenisProvider({ children }: { children: ReactNode }) {
   const ref = useRef<Lenis | null>(null);
 
   useEffect(() => {
+    // Always start at the top on (re)load — opt out of the browser restoring
+    // the previous scroll position, which would land mid-section.
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+    window.scrollTo(0, 0);
+
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
@@ -29,6 +36,8 @@ export function LenisProvider({ children }: { children: ReactNode }) {
       wheelMultiplier: 1,
       touchMultiplier: 1.2,
     });
+
+    instance.scrollTo(0, { immediate: true });
 
     ref.current = instance;
     setLenis(instance);

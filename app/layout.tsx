@@ -20,6 +20,11 @@ export const metadata: Metadata = {
   title: "Caarapace — Engineering Digital Transformation",
   description:
     "Customized ERP systems, Smart CRM solutions, and digital experiences engineered around your business.",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

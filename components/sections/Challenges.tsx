@@ -47,24 +47,42 @@ export default function Challenges({ id }: { id: string }) {
 
     const ctx = gsap.context(() => {
       const cards = cardRefs.current.filter(Boolean) as HTMLDivElement[];
-      gsap.set(cards, { opacity: 0, y: 60 });
+      gsap.set(cards, { opacity: 0, y: 60, scale: 0.92, transformOrigin: "center center" });
+
+      const n = cards.length;
+      // Each card owns an evenly-spaced stage. Its stop is the progress at
+      // which it becomes the active (highlighted) card.
+      const stageFor = (i: number) => (i + 0.5) / n;
+      const stopsId =
+        "stops:" + cards.map((_, i) => stageFor(i).toFixed(4)).join(",");
 
       const trigger = ScrollTrigger.create({
         trigger: section,
-        id: "stops:0.3,0.475,0.65,1",
+        id: stopsId,
         start: "top top",
-        end: "+=150%",
+        end: "+=220%",
         pin: true,
         scrub: true,
         anticipatePin: 1,
         onUpdate: (self) => {
           const p = self.progress;
-          const n = cards.length;
+          // Which stage we're focused on (0..n-1).
+          const activeF = gsap.utils.clamp(0, n - 1, p * n - 0.5);
+
           cards.forEach((card, i) => {
-            // Each card reveals across its own slice of the scroll, in order.
-            const start = (i / n) * 0.7;
-            const local = gsap.utils.clamp(0, 1, (p - start) / 0.3);
-            gsap.set(card, { opacity: local, y: (1 - local) * 60 });
+            const stage = stageFor(i);
+            // Reveal each card a little before its stage; once revealed it stays.
+            const reveal = gsap.utils.clamp(0, 1, (p - (stage - 0.18)) / 0.18);
+
+            // Highlight: peaks (1) when this card is the active stage, falls off
+            // for neighbours so the active card is scaled up and others dimmed.
+            const focus = gsap.utils.clamp(0, 1, 1 - Math.abs(activeF - i));
+
+            gsap.set(card, {
+              opacity: reveal * (0.45 + 0.55 * focus),
+              y: (1 - reveal) * 60,
+              scale: 0.92 + 0.08 * reveal + 0.06 * focus,
+            });
           });
         },
       });

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { LogoMark } from "@/components/ui/Logo";
+import Image from "next/image";
 
 const EASE = [0.65, 0, 0.35, 1] as const;
 
@@ -66,7 +66,14 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, ease: EASE }}
           >
-            <LogoMark className="h-16 w-16" animate delay={0.1} />
+            <Image
+              src="/logo.png"
+              alt="Caarapace"
+              width={64}
+              height={64}
+              priority
+              className="h-16 w-16 object-contain"
+            />
           </motion.div>
 
           <motion.div
